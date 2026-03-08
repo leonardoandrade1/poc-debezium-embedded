@@ -59,7 +59,13 @@ public class CdcEventHandler {
                 default -> log.warn("Unknown operation '{}', skipping event.", operation);
             }
         } catch (Exception e) {
-            log.error("Error processing CDC event: {}", e.getMessage(), e);
+            // Ensure at least once delivery:
+            // This ensure that the offset will not be updated, because we're stoping engine
+            // immediately after an error, so the event will try to process again when
+            // the engine is restarted based on the last committed offset.
+            log.error("CRITICAL: Error processing CDC event. Stopping engine to prevent data loss. Error: {}",
+                    e.getMessage(), e);
+            throw new RuntimeException("CDC processing failed, stopping engine.", e);
         }
     }
 
