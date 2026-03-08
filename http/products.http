@@ -29,3 +29,7 @@ Content-Type: application/json
 
 ### Delete a product
 DELETE http://localhost:8080/api/products/100
+
+### Check Debezium Engine Status
+GET http://localhost:8080/api/debezium/status
+Accept: application/json
