@@ -1,0 +1,31 @@
+### List all products
+GET http://localhost:8080/api/products
+Accept: application/json
+
+### Get product by ID
+GET http://localhost:8080/api/products/1
+Accept: application/json
+
+### Create a new product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "id": 100,
+  "name": "Webcam Logitech C920",
+  "description": "Webcam Full HD 1080p com microfone integrado",
+  "price": 349.90
+}
+
+### Update a product
+PUT http://localhost:8080/api/products/100
+Content-Type: application/json
+
+{
+  "name": "Webcam Logitech C920 HD Pro",
+  "description": "Webcam Full HD 1080p com microfone estéreo e correção de luz automática",
+  "price": 399.90
+}
+
+### Delete a product
+DELETE http://localhost:8080/api/products/100

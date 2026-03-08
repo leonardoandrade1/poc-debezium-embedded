@@ -1,0 +1,76 @@
+services:
+  mysql-monolith:
+    image: mysql:8.0
+    container_name: mysql-monolith
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: monolith
+    ports:
+      - "3307:3306"
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --binlog_format=ROW
+      --binlog_row_image=FULL
+      --gtid_mode=ON
+      --enforce-gtid-consistency=ON
+    volumes:
+      - ./infra/mysql-monolith/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-monolith-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      start_period: 30s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mysql-product:
+    image: mysql:8.0
+    container_name: mysql-product
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: product
+    ports:
+      - "3308:3306"
+    volumes:
+      - ./infra/mysql-product/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-product-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      start_period: 30s
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: poc-debezium-app
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      # Destination datasource (product microservice)
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-product:3306/product
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      # Debezium source (monolith)
+      DEBEZIUM_SOURCE_HOST: mysql-monolith
+      DEBEZIUM_SOURCE_PORT: 3306
+      DEBEZIUM_SOURCE_USER: root
+      DEBEZIUM_SOURCE_PASSWORD: root
+      DEBEZIUM_SOURCE_DATABASE: monolith
+      DEBEZIUM_SOURCE_TABLE_INCLUDE: monolith.product
+      # Debezium offset storage (dedicated control database)
+      DEBEZIUM_OFFSET_JDBC_URL: jdbc:mysql://mysql-product:3306/debezium
+      DEBEZIUM_OFFSET_JDBC_USER: root
+      DEBEZIUM_OFFSET_JDBC_PASSWORD: root
+    ports:
+      - "8080:8080"
+    restart: on-failure
+    depends_on:
+      mysql-monolith:
+        condition: service_healthy
+      mysql-product:
+        condition: service_healthy
+
+volumes:
+  mysql-monolith-data:
+  mysql-product-data:
