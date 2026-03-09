@@ -4,9 +4,9 @@ This project demonstrates the **Strangler Fig Pattern** by replicating data from
 
 ## Architecture
 
-*   **Source**: MySQL Monolith (Port 3307) - Table `product`
+*   **Source**: MySQL Monolith (Port 3307) - Tables: `product`, `orders`
 *   **CDC Engine**: Debezium Embedded (Java 21 / Spring Boot 3.4)
-*   **Destination**: MySQL Product Microservice (Port 3308) - Table `product`
+*   **Destination**: MySQL Product Microservice (Port 3308) - Tables: `product`, `orders`
 *   **Control**: Dedicated `debezium` database for offsets and schema history.
 
 ## Prerequisites
@@ -30,10 +30,11 @@ This project demonstrates the **Strangler Fig Pattern** by replicating data from
 
 ## Testing CDC Replication
 
-### 1. Insert a new product
-Run the helper script to insert a record into the Monolith:
+### 1. Insert a new product or order
+Run the helper scripts to insert records into the Monolith:
 ```bash
 ./scripts/add-product.sh "Gaming Monitor" "4K 144Hz" 599.90
+./scripts/add-order.sh 1 5 "buyer@example.com"
 ```
 
 ### 2. Verify the change

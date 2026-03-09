@@ -1,11 +1,19 @@
 -- Product microservice database initialization
 USE product;
 
-CREATE TABLE product (
-    id BIGINT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS product (
+    id INT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INT PRIMARY KEY,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    order_date TIMESTAMP
 );
 
 -- Debezium control database (separate from business data)

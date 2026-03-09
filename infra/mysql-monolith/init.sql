@@ -10,8 +10,21 @@ CREATE TABLE product (
 
 -- Sample data
 INSERT INTO product (name, description, price) VALUES
-    ('Notebook Dell Inspiron', 'Notebook Dell Inspiron 15, 16GB RAM, 512GB SSD', 4599.90),
-    ('Mouse Logitech MX Master', 'Mouse sem fio ergonômico com sensor de alta precisão', 499.90),
-    ('Teclado Mecânico Keychron K2', 'Teclado mecânico 75%, switches Gateron Brown, RGB', 699.90),
-    ('Monitor LG UltraWide 34"', 'Monitor ultrawide 34 polegadas, resolução WQHD', 3299.90),
-    ('Headset HyperX Cloud II', 'Headset gamer com som surround 7.1 virtual', 399.90);
+    ('Smartphone', 'Latest model smartphone', 999.99),
+    ('Laptop', 'Powerfull gaming laptop', 1500.00),
+    ('Headphones', 'Noise-cancelling headphones', 299.99),
+    ('Watch', 'Smartwatch with heart rate monitor', 199.99),
+    ('Tablet', '10-inch tablet with stylus', 499.99);
+
+-- New Orders table
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO orders (product_id, quantity, customer_email) VALUES
+    (1, 1, 'customer1@example.com'),
+    (2, 2, 'customer2@example.com');

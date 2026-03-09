@@ -1,0 +1,10 @@
+### Get all orders
+GET http://localhost:8080/api/orders
+Accept: application/json
+
+### Get order by ID
+GET http://localhost:8080/api/orders/1
+Accept: application/json
+
+### Delete an order (from microservice only - for testing isolation)
+DELETE http://localhost:8080/api/orders/1
