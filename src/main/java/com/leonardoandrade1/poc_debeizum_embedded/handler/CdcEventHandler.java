@@ -196,6 +196,9 @@ public class CdcEventHandler {
             return LocalDateTime.ofInstant(Instant.ofEpochMilli(l), ZoneId.systemDefault());
         }
         if (value instanceof String s) {
+            if (s.endsWith("Z")) {
+                return Instant.parse(s).atZone(ZoneId.systemDefault()).toLocalDateTime();
+            }
             return LocalDateTime.parse(s);
         }
         return null;
