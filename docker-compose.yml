@@ -42,6 +42,55 @@ services:
       timeout: 5s
       retries: 10
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      KAFKA_OPTS: "-Dzookeeper.4lw.commands.whitelist=ruok"
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+  
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    depends_on: 
+      - kafka
+    ports:
+      - "8002:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=broker
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+
   app:
     build: .
     container_name: poc-debezium-app
@@ -62,6 +111,13 @@ services:
       DEBEZIUM_OFFSET_JDBC_URL: jdbc:mysql://mysql-product:3306/debezium
       DEBEZIUM_OFFSET_JDBC_USER: root
       DEBEZIUM_OFFSET_JDBC_PASSWORD: root
+      # Kafka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_TOPIC_PRODUCT: cdc.product
+      KAFKA_TOPIC_ORDERS: cdc.orders
+      KAFKA_CONSUMER_GROUP_ID: cdc-consumer-group
+      KAFKA_CONSUMER_MAX_RETRIES: 3
+      KAFKA_CONSUMER_RETRY_BACKOFF_MS: 1000
     ports:
       - "8080:8080"
     restart: on-failure
@@ -69,6 +125,8 @@ services:
       mysql-monolith:
         condition: service_healthy
       mysql-product:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
 
 volumes:
