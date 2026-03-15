@@ -28,3 +28,13 @@ CREATE TABLE IF NOT EXISTS orders (
 INSERT INTO orders (product_id, quantity, customer_email) VALUES
     (1, 1, 'customer1@example.com'),
     (2, 2, 'customer2@example.com');
+
+-- Debezium signal table to trigger debezium actions (https://debezium.io/documentation/reference/stable/configuration/signalling.html#debezium-signaling-overview)
+CREATE TABLE IF NOT EXISTS debezium_signal (
+    id VARCHAR(42) PRIMARY KEY,
+    type VARCHAR(32) NOT NULL,
+    data VARCHAR(2048) NULL
+);
+
+-- Example of a signal to trigger a snapshot
+-- INSERT INTO debezium_signal (id, type, data) VALUES (UUID(), 'execute-snapshot', '{"data-collections": ["monolith.orders"], "type": "incremental"}');

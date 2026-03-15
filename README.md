@@ -82,6 +82,23 @@ docker exec -it mysql-monolith mysql -uroot -proot -e \
 docker exec -it mysql-product mysql -uroot -proot -e "SELECT * FROM product.debezium_offset_storage;"
 ```
 
+#### 4.7 Trigger Ad-Hoc Snapshot
+**What are Ad-Hoc Incremental Snapshots?**
+Normally, Debezium makes snapshot of all tables on the first run and then reads the change events by binlog. Sometines you need to resync specifics tables, for example, deleted data and need to restore it, or you added a new table and need to capture it.
+In these cases, you can request this Ad-Hoc incremental snapshots by sending signals to Debezium, in this case, add a record in the `debezium_signal` table.
+It won't stop the connector or stop reading binlogs, so you can continue using the applicaiton normally.
+The table reading is done in chunks to avoid performance issues.
+Important: The signal table must be created in the *source database*.
+
+Refs:
+- https://debezium.io/documentation/reference/stable/configuration/signalling.html#debezium-signaling-overview
+- https://debezium.io/documentation/reference/stable/connectors/mysql.html#debezium-mysql-incremental-snapshots
+
+
+```bash
+./scripts/trigger-snapshot.sh
+```
+
 ## Configuration Highlights
 
 *   **Connector**: `MySqlConnector`

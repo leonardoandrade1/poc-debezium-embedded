@@ -65,6 +65,11 @@ public class DebeziumConnectorConfig {
         // Snapshot: initial snapshot when no offset exists
         configMap.put("snapshot.mode", "initial");
 
+        // Signal
+        configMap.put("signal.enabled", "true");
+        configMap.put("signal.data.collection", sourceDatabase +
+                ".debezium_signal");
+
         // Offset storage in destination MySQL via JDBC
         configMap.put("offset.storage", "io.debezium.storage.jdbc.offset.JdbcOffsetBackingStore");
         configMap.put("offset.storage.jdbc.offset.table.name", "debezium_offset_storage");

@@ -57,7 +57,7 @@ services:
       DEBEZIUM_SOURCE_USER: root
       DEBEZIUM_SOURCE_PASSWORD: root
       DEBEZIUM_SOURCE_DATABASE: monolith
-      DEBEZIUM_SOURCE_TABLE_INCLUDE: monolith.product
+      DEBEZIUM_SOURCE_TABLE_INCLUDE: monolith.product,monolith.orders
       # Debezium offset storage (dedicated control database)
       DEBEZIUM_OFFSET_JDBC_URL: jdbc:mysql://mysql-product:3306/debezium
       DEBEZIUM_OFFSET_JDBC_USER: root
